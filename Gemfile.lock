@@ -1,9 +1,22 @@
+GIT
+  remote: https://github.com/Najaf/responsechecker.git
+  revision: 9083390250c600ff4c2dd7714b4103850d355680
+  specs:
+    responsechecker (0.0.1)
+      cookiejar (= 0.3.2)
+
 GEM
   remote: https://rubygems.org/
   specs:
+    cookiejar (0.3.2)
+    haml (4.0.5)
+      tilt
     rack (1.5.2)
     rack-protection (1.5.3)
       rack
+    sass (3.4.5)
+    shotgun (0.9)
+      rack (>= 1.0)
     sinatra (1.4.5)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -14,4 +27,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  haml
+  responsechecker!
+  sass
+  shotgun
   sinatra

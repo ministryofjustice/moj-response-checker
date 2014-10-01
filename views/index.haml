@@ -1,0 +1,13 @@
+%html
+  %head
+    %link{rel: 'stylesheet', type: 'text/css', href: '/style.css'}
+  %body
+    %h1 Banana
+
+    -@checks.each do |name, url, checks|
+      %h2=name
+      %h3=url
+      %ul.checks
+        -checks.each do |name, description, passed|
+          %li{class: passed ? 'passed' : 'failed'}
+            ="[#{passed ? '✓' : '✗'}] - #{name}"
