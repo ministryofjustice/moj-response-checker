@@ -50,13 +50,21 @@ SITES = [
 ]
 
 def checks
-  SITES.map do |url|
+  SITES.shuffle.map do |url|
     checker = ResponseChecker::Checker.new_with_all_checks(url)
     [url, checker.perform_checks]
-  end
+  end.sort_by { |_, checks| checks.count { |_, _, passed| passed } }.reverse
 end
 
 get '/' do
+  @headers = [
+    'X-Content-Type-Options',
+    'X-Frame-Options',
+    'HttpOnly cookies',
+    'Secure cookies',
+    'Strict transport security',
+    'X-XSS-Protection'
+  ]
   @checks = checks
   haml :index
 end

@@ -1,12 +1,39 @@
 body {
   font-family: sans-serif;
+  color: #333;
 }
 
 .checks {
   font-family: monospace;
+  border: 1px solid #eee;
+  border-collapse: collapse;
+  thead {
+    text-align: left;
+    border-bottom: 2px solid
+  }
+
+  tbody {
+    td {
+      border-right: 1px solid #eee;
+      padding: 3px;
+
+      &.passed {
+        background-color: rgba(0, 128, 0, 0.5);
+      }
+
+      &.failed {
+        background-color: rgba(128, 0, 0, 0.5);
+      }
+    }
+
+    tr {
+      margin-bottom: 3px;
+      border-bottom: 1px solid #eee;
+    }
+  }
 }
 
 section {
-  width: 700px;
+  width: 800px;
   margin: 0 auto;
 }
