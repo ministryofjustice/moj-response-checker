@@ -5,10 +5,9 @@
     %section
       %h1 MoJ HTTP Response Checker
       %p This tool checks MoJ production sites for numerous security headers.
-      -@checks.each do |name, url, checks|
+      -@checks.each do |url, checks|
         %section
-        %h3=name
-        %h4=url
+        %h3=url
         %ul.checks
           -checks.each do |name, description, passed|
             %li{class: passed ? 'passed' : 'failed'}
