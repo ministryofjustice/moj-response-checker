@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/Najaf/responsechecker.git
-  revision: 9083390250c600ff4c2dd7714b4103850d355680
+  revision: c3592ef63362e89490adcf0f0643b5e385e880ca
   specs:
     responsechecker (0.0.1)
       cookiejar (= 0.3.2)
