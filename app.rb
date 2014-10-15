@@ -44,16 +44,20 @@ SITES = [
   'http://www.makeaplea.justice.gov.uk/',
   'http://www.prisonvisits.service.gov.uk/',
   'http://www.prisonvisits.service.gov.uk/prisoner-details',
-  #'http://yjbdep.justice.gov.uk/',
-  #'http://yjbpublications.justice.gov.uk/',
-  #'http://yjbpublications.justice.gov.uk/en-gb/'
+  'http://yjbdep.justice.gov.uk/',
+  'http://yjbpublications.justice.gov.uk/',
+  'http://yjbpublications.justice.gov.uk/en-gb/'
 ]
 
 def checks
   SITES.shuffle.map do |url|
     checker = ResponseChecker::Checker.new_with_all_checks(url)
-    [url, checker.perform_checks]
-  end.sort_by { |_, checks| checks.count { |_, _, passed| passed } }.reverse
+    begin
+      [url, checker.perform_checks]
+    rescue
+      # do nothing
+    end
+  end.compact.sort_by { |_, checks| checks.count { |_, _, passed| passed } }.reverse
 end
 
 get '/' do
