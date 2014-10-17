@@ -1,0 +1,60 @@
+#! /usr/bin/env ruby
+
+require 'dotenv'
+require 'fog'
+require 'json'
+require 'responsechecker'
+include ResponseChecker
+
+Dotenv.load
+
+class DirectoryInfo
+  def initialize(directory)
+    @directory = directory
+  end
+
+  def subdirectory_exists?(path)
+    matched_files = @directory.files.select do |file|
+      file.key =~ %r{#{path}}
+    end
+
+    matched_files.count > 0
+  end
+
+  def keys
+    @directory.files.map(&:key)
+  end
+end
+
+storage = Fog::Storage.new(:provider => 'AWS', :aws_access_key_id => ENV['AWS_ACCESS_KEY_ID'], :aws_secret_access_key => ENV['AWS_SECRET_ACCESS_KEY'], :path_style => true, :region => 'eu-west-1')
+#puts storage.directories.get('opsreports').files.get('urls/http-ppo.gov.uk/pingdom.json').public_url
+directory = storage.directories.get('opsreports')
+info = DirectoryInfo.new(directory)
+
+# 1. Take a url from stdin
+url = ARGV.first
+
+# 2. Try running some checks on it
+checker = Checker.new_with_all_checks(url)
+results = checker.perform_checks
+
+# 3. Get the JSON for it
+json = JsonReporter.new(url, results).output
+
+# 4. Check that the relevant directory exists
+encoded_url = url.gsub('http://', 'http-')
+path = "urls/#{encoded_url}/"
+
+#puts info.keys
+
+unless info.subdirectory_exists?(path)
+  puts "Exiting: no directory in opsreports S3 bucket matches path #{path}"
+  exit
+end
+
+# Save the file
+full_path = "#{path}response_checks.json"
+directory.files.create(key: full_path, body: json, public: true)
+
+
+
