@@ -26,35 +26,44 @@ class DirectoryInfo
   end
 end
 
-storage = Fog::Storage.new(:provider => 'AWS', :aws_access_key_id => ENV['AWS_ACCESS_KEY_ID'], :aws_secret_access_key => ENV['AWS_SECRET_ACCESS_KEY'], :path_style => true, :region => 'eu-west-1')
-#puts storage.directories.get('opsreports').files.get('urls/http-ppo.gov.uk/pingdom.json').public_url
+storage = Fog::Storage.new(
+  :provider => 'AWS',
+  :aws_access_key_id => ENV['AWS_ACCESS_KEY_ID'],
+  :aws_secret_access_key => ENV['AWS_SECRET_ACCESS_KEY'],
+  :path_style => true,
+  :region => 'eu-west-1'
+)
+
 directory = storage.directories.get('opsreports')
 info = DirectoryInfo.new(directory)
 
-# 1. Take a url from stdin
-url = ARGV.first
+# 1. Take a urls from index.json
+urls = JSON.parse(directory.files.get('index.json').body).keys
 
-# 2. Try running some checks on it
-checker = Checker.new_with_all_checks(url)
-results = checker.perform_checks
+urls.each do |url|
+  begin
+    puts url
+    # 2. Try running some checks on it
+    checker = Checker.new_with_all_checks(url)
+    results = checker.perform_checks
 
-# 3. Get the JSON for it
-json = JsonReporter.new(url, results).output
+    # 3. Get the JSON for it
+    json = JsonReporter.new(url, results).output
 
-# 4. Check that the relevant directory exists
-encoded_url = url.gsub('http://', 'http-')
-path = "urls/#{encoded_url}/"
+    # 4. Check that the relevant directory exists
+    encoded_url = url.gsub('http://', 'http-')
+    path = "urls/#{encoded_url}"
 
-#puts info.keys
+    next unless info.subdirectory_exists?(path)
 
-unless info.subdirectory_exists?(path)
-  puts "Exiting: no directory in opsreports S3 bucket matches path #{path}"
-  exit
+    # Save the file
+    full_path = "#{path}response_checks.json"
+    directory.files.create(key: full_path, body: json, public: true)
+
+    puts full_path
+  rescue
+    puts '.'
+    # do nothing
+  end
 end
-
-# Save the file
-full_path = "#{path}response_checks.json"
-directory.files.create(key: full_path, body: json, public: true)
-
-
 
