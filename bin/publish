@@ -4,6 +4,7 @@ require 'dotenv'
 require 'fog'
 require 'json'
 require 'responsechecker'
+require_relative '../lib/tls_redirect_check.rb'
 include ResponseChecker
 
 Dotenv.load
@@ -46,6 +47,7 @@ urls.each do |url|
     # 2. Try running some checks on it
     checker = Checker.new_with_all_checks(url)
     results = checker.perform_checks
+    results << TlsRedirectCheck.perform(url)
 
     # 3. Get the JSON for it
     json = JsonReporter.new(url, results).output
